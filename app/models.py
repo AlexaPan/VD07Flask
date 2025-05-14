@@ -1,7 +1,11 @@
 from app import db, logins_manager
 from flask_login import UserMixin
 
-@logins_manager.user_loader()
+
+# Декоратор @login_manager.user_loader используется для регистрации функции,
+# которая загружает пользователя по его идентификатору.
+# Эта функция должна принимать идентификатор пользователя и возвращать объект пользователя.
+@logins_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
