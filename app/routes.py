@@ -2,7 +2,8 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User
 from app import db, app, bcrypt
-from app.forms import LoginForm, RegistrationForm
+from app.forms import LoginForm, RegistrationForm, EditProfileForm
+
 
 @app.route('/')
 @app.route('/index')
@@ -45,11 +46,25 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
-@app.route('/account/<username>')
+@app.route('/account/<username>', methods=['GET', 'POST'])
 @login_required
 def account(username):
+    form = EditProfileForm()
     user = User.query.filter_by(username=username).first_or_404()
-    return render_template('account.html', username=user.username)
+
+    if form.validate_on_submit():
+        user.username = form.username.data
+        user.email = form.email.data
+        user.password = form.password.data
+        db.session.commit()
+
+        flash('Your changes have been saved.')
+        return redirect(url_for('account', username=user.username))
+    elif request.method == 'GET':
+        form.username.data = user.username
+        form.email.data = user.email
+
+    return render_template('account.html', title='Account', username=user.username, form=form)
 
 
 
