@@ -55,7 +55,8 @@ def account(username):
     if form.validate_on_submit():
         user.username = form.username.data
         user.email = form.email.data
-        user.password = form.password.data
+        user.password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+
         db.session.commit()
 
         flash('Your changes have been saved.')
